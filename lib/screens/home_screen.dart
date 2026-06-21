@@ -8,22 +8,19 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.blue,
+      body: Padding(
+        padding: const EdgeInsets.all(25),
 
-      body: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
 
-            const Icon(Icons.location_city, size: 80, color: Colors.white),
-
-            const SizedBox(height: 20),
+            const SizedBox(height: 60),
 
             const Text(
               "Easymairie",
               style: TextStyle(
-                fontSize: 30,
-                color: Colors.white,
+                fontSize: 28,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -31,38 +28,68 @@ class HomeScreen extends StatelessWidget {
             const SizedBox(height: 10),
 
             const Text(
-              "Gérez votre attente facilement",
-              style: TextStyle(color: Colors.white70),
+              "Gérez vos files d’attente sans stress.",
+              style: TextStyle(color: Colors.grey),
             ),
 
             const SizedBox(height: 40),
 
-            // Bouton 1
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+            // Carte principale
+            Container(
+              padding: const EdgeInsets.all(25),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF1E3A8A), Color(0xFF3B82F6)],
+                ),
+                borderRadius: BorderRadius.circular(25),
               ),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const ServicesScreen(),
+
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+
+                  const Text(
+                    "Prendre un ticket",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                );
-              },
-              child: const Text("Prendre un ticket"),
+
+                  const SizedBox(height: 10),
+
+                  const Text(
+                    "Évitez la file physique et gagnez du temps.",
+                    style: TextStyle(color: Colors.white70),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: Colors.blue,
+                    ),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ServicesScreen(),
+                        ),
+                      );
+                    },
+                    child: const Text("Commencer"),
+                  )
+                ],
+              ),
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 30),
 
-            // Bouton 2
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: Colors.blue,
-                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-              ),
-              onPressed: () {
+            // Bouton secondaire
+            GestureDetector(
+              onTap: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -70,7 +97,23 @@ class HomeScreen extends StatelessWidget {
                   ),
                 );
               },
-              child: const Text("Voir mon ticket"),
+              child: Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(color: Colors.grey.shade200, blurRadius: 10)
+                  ],
+                ),
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text("Voir mes tickets"),
+                    Icon(Icons.arrow_forward_ios, size: 16),
+                  ],
+                ),
+              ),
             ),
           ],
         ),
