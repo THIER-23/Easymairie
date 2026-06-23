@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'screens/home_screen.dart';
+import 'services/file_manager.dart';
 
 void main() {
   runApp(const MyApp());
@@ -10,14 +12,23 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Easymairie',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        useMaterial3: true,
+    return ChangeNotifierProvider(
+      create: (_) => FileManager(),
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'Easymairie',
+        theme: ThemeData(
+          fontFamily: 'Roboto',
+          primaryColor: const Color(0xFF1E3A8A),
+          scaffoldBackgroundColor: const Color(0xFFF9FAFB),
+          appBarTheme: const AppBarTheme(
+            backgroundColor: Color(0xFF1E3A8A),
+            elevation: 0,
+            centerTitle: true,
+          ),
+        ),
+        home: const HomeScreen(),
       ),
-      home: const HomeScreen(),
-      debugShowCheckedModeBanner: false,
     );
   }
 }

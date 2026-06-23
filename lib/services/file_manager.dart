@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:collection';
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
@@ -9,6 +10,9 @@ import '../data/services_data.dart';
 ///
 /// Étend [ChangeNotifier] pour notifier l'UI (Personne 1) à chaque
 /// modification de la file via `Consumer<FileManager>` ou `Provider`.
+///
+/// Un [Timer.periodic] décrémente automatiquement le temps d'attente
+/// de chaque ticket toutes les minutes.
 class FileManager extends ChangeNotifier {
   /// Générateur d'identifiants uniques pour chaque ticket.
   final Uuid _uuid = const Uuid();
@@ -19,9 +23,51 @@ class FileManager extends ChangeNotifier {
   /// Map service → dernier numéro délivré (ne se réinitialise pas si la file se vide).
   final Map<String, int> _lastNumbers = {};
 
+  /// Liste des ids des tickets pris par cet appareil.
+  final List<String> _mesTicketIds = [];
+
+  /// Expose les ids des tickets de l'utilisateur en lecture seule.
+  List<String> get mesTicketIds => List.unmodifiable(_mesTicketIds);
+
+  /// Retourne tous les tickets actifs de l'utilisateur courant.
+  List<Ticket> get mesTickets {
+    return _mesTicketIds
+        .map((id) => getTicketById(id))
+        .whereType<Ticket>()
+        .toList();
+  }
+
+  /// Timer qui décrémente le temps d'attente de chaque ticket toutes les minutes.
+  late final Timer _timer;
+
+  /// Démarre le timer au lancement du FileManager.
+  FileManager() {
+    _timer = Timer.periodic(const Duration(minutes: 1), (_) {
+      _decrementerTempsAttente();
+    });
+  }
+
+  /// Décrémente de 1 minute le temps d'attente de tous les tickets en file.
+  /// Ne descend jamais en dessous de 0.
+  void _decrementerTempsAttente() {
+    bool changed = false;
+    for (final queue in _queues.values) {
+      for (int i = 0; i < queue.length; i++) {
+        final tempsActuel = queue[i].tempsAttenteEstime;
+        if (tempsActuel > 0) {
+          queue[i] = queue[i].copyWith(
+            tempsAttenteEstime: tempsActuel - 1,
+          );
+          changed = true;
+        }
+      }
+    }
+    if (changed) notifyListeners();
+  }
+
   /// Expose les files en lecture seule (copies immuables).
   /// La Personne 1 peut lire sans risquer de modifier l'état interne.
- UnmodifiableMapView<String, List<Ticket>> get queues {
+  UnmodifiableMapView<String, List<Ticket>> get queues {
   final copied = _queues.map<String, List<Ticket>>(
     (k, v) => MapEntry(k, List<Ticket>.unmodifiable(v)),
   );
@@ -57,6 +103,7 @@ class FileManager extends ChangeNotifier {
     );
 
     currentQueue.add(ticket);
+    _mesTicketIds.add(ticket.id); // Mémorise ce ticket comme appartenant à cet appareil
     notifyListeners();
     return ticket;
   }
@@ -93,6 +140,7 @@ class FileManager extends ChangeNotifier {
       final index = queue.indexWhere((t) => t.id == ticketId);
       if (index != -1) {
         queue.removeAt(index);
+        _mesTicketIds.remove(ticketId); // Retire aussi de la liste personnelle
         for (int i = 0; i < queue.length; i++) {
           queue[i] = queue[i].copyWith(
             position: i,
@@ -161,6 +209,7 @@ class FileManager extends ChangeNotifier {
 
   @override
   void dispose() {
+    _timer.cancel(); // Arrête le timer proprement pour éviter les fuites mémoire
     super.dispose();
   }
 }
