@@ -6,7 +6,7 @@ class ServicesData {
   /// Liste des services avec leur temps moyen de traitement (en minutes).
   static const Map<String, int> services = {
     "Carte d'identité": 15,
-    "Passeport": 20,
+    "Passeport": 60,
     "Acte de naissance": 5,
     "Acte de mariage": 5,
     "Certificat de domicile": 8,

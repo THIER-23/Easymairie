@@ -1,33 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'screens/home_screen.dart';
+import 'theme/app_theme.dart';
 import 'services/file_manager.dart';
+import 'screens/home_screen.dart';
+import 'services/notification_service.dart';
 
-void main() {
-  runApp(const MyApp());
+// Notifier global pour savoir si on est en mode sombre ou clair
+final ValueNotifier<ThemeMode> themeModeNotifier = ValueNotifier(ThemeMode.system);
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await NotificationService.init();
+  runApp(const EasymairieApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class EasymairieApp extends StatelessWidget {
+  const EasymairieApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) => FileManager(),
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'Easymairie',
-        theme: ThemeData(
-          fontFamily: 'Roboto',
-          primaryColor: const Color(0xFF1E3A8A),
-          scaffoldBackgroundColor: const Color(0xFFF9FAFB),
-          appBarTheme: const AppBarTheme(
-            backgroundColor: Color(0xFF1E3A8A),
-            elevation: 0,
-            centerTitle: true,
-          ),
-        ),
-        home: const HomeScreen(),
+      child: ValueListenableBuilder<ThemeMode>(
+        valueListenable: themeModeNotifier,
+        builder: (context, mode, _) {
+          return MaterialApp(
+            title: 'Easymairie',
+            debugShowCheckedModeBanner: false,
+            theme: AppTheme.light,
+            darkTheme: AppTheme.dark,
+            themeMode: mode,
+            home: const HomeScreen(),
+          );
+        },
       ),
     );
   }

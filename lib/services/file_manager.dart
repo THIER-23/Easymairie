@@ -1,10 +1,10 @@
 import 'dart:async';
-import 'dart:collection';
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 import 'package:collection/collection.dart';
 import '../models/ticket.dart';
 import '../data/services_data.dart';
+import 'notification_service.dart';
 
 /// Gestionnaire de files d'attente virtuelles par service.
 ///
@@ -117,6 +117,12 @@ class FileManager extends ChangeNotifier {
     if (queue == null || queue.isEmpty) return null;
 
     final called = queue.removeAt(0);
+    // Vérifie si un ticket de l'utilisateur est à position 2
+for (final t in queue) {
+  if (t.position == 2 && _mesTicketIds.contains(t.id)) {
+    NotificationService.notifierBientotTour(t.service, t.numero);
+  }
+}
 
     // Recalcule positions et temps estimés pour les tickets restants
     for (int i = 0; i < queue.length; i++) {
